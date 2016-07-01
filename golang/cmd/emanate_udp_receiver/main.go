@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/EmanateWireless/emanate-udp-tools/udp"
+	"github.com/EmanateWireless/emanate-udp-tools/golang/udp"
 	"github.com/urfave/cli"
 )
 
