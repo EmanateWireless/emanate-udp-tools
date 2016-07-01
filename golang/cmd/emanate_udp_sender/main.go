@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
+	"github.com/EmanateWireless/emanate-udp-tools/golang/ccx"
 	"github.com/EmanateWireless/emanate-udp-tools/golang/udp"
 	"github.com/urfave/cli"
 )
@@ -36,8 +38,22 @@ func main() {
 			Port: c.Int("port"),
 		})
 
-		// send the packets
-		sender.Transmit([]byte("Howdy there!"))
+		// create a ccx packet
+		packet := ccx.NewPacket()
+		if err := packet.SetUtilState(ccx.UTIL_STATE_UNPLUGGED); err != nil {
+			fmt.Printf("Error: cannot add util state to UDP packet ('%v')\n", err)
+			return nil
+		}
+
+		// encode the packet as bytes
+		data, err := packet.Bytes()
+		if err != nil {
+			fmt.Printf("Error: cannot convert UDP packet into bytes ('%v')\n", err)
+			return nil
+		}
+
+		// send the ccx packet
+		sender.Transmit(data)
 
 		return nil
 	}
