@@ -40,16 +40,36 @@ func main() {
 		cli.IntFlag{
 			Name:  "seq",
 			Value: 1,
-			Usage: "sequence number within the emanate udp packet",
-		},
-		cli.Float64Flag{
-			Name:  "temp",
-			Usage: "temperature floating-point value (in celsius)",
+			Usage: "sequence number of the emanate udp packet",
 		},
 		cli.StringFlag{
 			Name:  "util-state",
 			Value: "unplugged",
 			Usage: "utility state of 'unplugged', 'off', 'idle', or 'active'",
+		},
+		cli.Float64Flag{
+			Name:  "temp",
+			Usage: "temperature floating-point value (in celsius)",
+		},
+		cli.IntFlag{
+			Name:  "battery-charge",
+			Value: 80,
+			Usage: "battery charge percentage remaining (0-100)",
+		},
+		cli.IntFlag{
+			Name:  "battery-days-remaining",
+			Value: 100,
+			Usage: "number of days remaining for battery charge",
+		},
+		cli.IntFlag{
+			Name:  "battery-age",
+			Value: 10,
+			Usage: "battery age in days",
+		},
+		cli.IntFlag{
+			Name:  "battery-tolerance",
+			Value: 0,
+			Usage: "battery prediction tolerance percentage (0-100)",
 		},
 		cli.BoolTFlag{
 			Name:  "button-pressed",
@@ -78,8 +98,8 @@ func main() {
 		// create a ccx packet
 		packet := ccx.NewPacket()
 
-		// set the burst length to the number of duplicate udp packets
-		packet.SetBurstLength(uint8(c.Int("num-dups")))
+		// set the burst length to the number of duplicate udp packets + 1 original
+		packet.SetBurstLength(uint8(c.Int("num-dups") + 1))
 
 		// if the util-state option is given
 		if c.GlobalIsSet("util-state") {
@@ -124,6 +144,14 @@ func main() {
 			// set the packet's sequence number
 			packet.SetSequenceNumber(uint16(seq))
 		}
+
+		// set the battery values
+		packet.SetBatteryInfo(&ccx.BatteryInfo{
+			TolerancePercent: uint8(c.Int("battery-tolerance")),
+			PercentRemaining: uint8(c.Int("battery-charge")),
+			DaysRemaining:    uint16(c.Int("battery-days-remaining")),
+			AgeDays:          uint32(c.Int("battery-age")),
+		})
 
 		// if the temperature option is given
 		if c.GlobalIsSet("temp") {

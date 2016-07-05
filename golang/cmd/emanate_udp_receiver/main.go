@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
+	"github.com/EmanateWireless/emanate-udp-tools/golang/ccx"
 	"github.com/EmanateWireless/emanate-udp-tools/golang/udp"
 	"github.com/urfave/cli"
 )
@@ -27,9 +29,22 @@ func main() {
 
 	// define the cli execution handler
 	app.Action = func(c *cli.Context) error {
-		// create a udp reciver instance
+		// create a udp receiver instance
 		receiver := udp.NewReceiver(&udp.ReceiverOptions{
 			Port: c.Int("port"),
+		})
+
+		// register the data handler
+		receiver.DataHandler(func(du *udp.DataUpdate) {
+			fmt.Printf("\nUDP PACKET RECEIVED\n")
+			fmt.Printf("===================\n\n")
+			fmt.Printf("  - Total Bytes = %d\n", len(du.Data))
+			fmt.Printf("  - Remote Addr = %s:%d\n", du.RemoteIP, du.RemotePort)
+
+			// parse the udp data as a ccx packet and dump to the console
+			if err := ccx.Parse(du.Data); err != nil {
+				fmt.Printf("Error receiving UDP data ('%v')\n", err)
+			}
 		})
 
 		// start receiving packets

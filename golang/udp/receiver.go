@@ -9,7 +9,8 @@ import (
 
 // Receiver is the UDP server instance
 type Receiver struct {
-	options *ReceiverOptions
+	options     *ReceiverOptions
+	dataHandler DataUpdateFunc
 }
 
 // ReceiverOptions provides the instance options
@@ -17,12 +18,29 @@ type ReceiverOptions struct {
 	Port int
 }
 
+// DataUpdate defines the UDP data update structure passed to the registered data handler
+type DataUpdate struct {
+	TS         time.Time
+	RemoteIP   string
+	RemotePort int
+	Data       []byte
+}
+
+// DataUpdateFunc is the callback function type used to notify when UDP data is received
+type DataUpdateFunc func(du *DataUpdate)
+
 // NewReceiver creates a new instance
 func NewReceiver(options *ReceiverOptions) *Receiver {
 	// return the new instance
 	return &Receiver{
 		options: options,
 	}
+}
+
+// DataHandler registers the update handler to call when UDP data is received
+func (r *Receiver) DataHandler(handler DataUpdateFunc) {
+	// save the data handler
+	r.dataHandler = handler
 }
 
 // Run starts the UDP receiver instance
@@ -38,7 +56,7 @@ func (r *Receiver) Run() {
 	// if an error occurred
 	if err != nil {
 		// log the error and exit the process now
-		fmt.Printf("\nError starting UDP receiver listening to UDP port '%d' (error = '%v')\n\n",
+		fmt.Printf("Error starting UDP receiver listening to UDP port '%d' (error = '%v')\n\n",
 			r.options.Port, err)
 		os.Exit(1)
 	}
@@ -52,16 +70,24 @@ func (r *Receiver) Run() {
 	// wait for received udp packets until commanded to quit
 	for {
 		// read the next udp packet
-		_, remoteaddr, err := socket.ReadFromUDP(buf)
+		_, remoteAddr, err := socket.ReadFromUDP(buf)
 		if err != nil {
 			// log the error and exit the process now
-			fmt.Printf("\nError occurred while receiving UDP packet (error = '%v'", err)
+			fmt.Printf("Error occurred while receiving UDP packet (error = '%v'", err)
 			os.Exit(1)
 		}
 
 		// get the current time
 		now := time.Now()
 
-		fmt.Printf("[%s] %s: '%s'\n", now, remoteaddr, buf)
+		// call the update handler if registered
+		if r.dataHandler != nil {
+			r.dataHandler(&DataUpdate{
+				TS:         now,
+				RemoteIP:   remoteAddr.IP.String(),
+				RemotePort: remoteAddr.Port,
+				Data:       buf,
+			})
+		}
 	}
 }
