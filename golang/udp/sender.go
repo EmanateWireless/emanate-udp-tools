@@ -27,8 +27,7 @@ func NewSender(options *SenderOptions) *Sender {
 
 // Transmit sends the given message as a UDP packet to the configured destination
 func (s *Sender) Transmit(data []byte) {
-	fmt.Printf("Sending UDP packet (%d bytes)\n", len(data))
-	fmt.Printf("Sending UDP packet = %v\n", hex.EncodeToString(data))
+	fmt.Printf("Sending UDP packet (%d bytes) (0x%v)\n", len(data), hex.EncodeToString(data))
 
 	// create the udp socket
 	dst := fmt.Sprintf("%s:%d", s.options.Host, s.options.Port)

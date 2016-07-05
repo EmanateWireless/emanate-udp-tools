@@ -12,7 +12,9 @@ func main() {
 	app := cli.NewApp()
 	app.Version = "v1.0.0"
 	app.Name = "emanate_udp_receiver"
+	app.HelpName = "emanate_udp_receiver"
 	app.Usage = "Emanate PowerPath UDP CCX packet receiver"
+	app.UsageText = "emanate_udp_receiver --port <LISTENING-PORT>"
 
 	// define the cli flags
 	app.Flags = []cli.Flag{
