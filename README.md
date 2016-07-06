@@ -32,7 +32,7 @@ Starting UDP receiver listening on port '9999'
 The '--all' option sends the kitchen-sink of every Emanate UDP option (for testing purposes).
 
 ```
-$ ./build/emanate_udp_sender_darwin-x64 --all
+$ ./emanate_udp_sender_darwin-x64 --all
 
 2016/07/05 19:12:55 Sending udp packet to '127.0.0.1:9999' (323 bytes)
 2016/07/05 19:12:55 DONE!
@@ -107,7 +107,7 @@ UDP PACKET RECEIVED
 The 'emanate_udp_sender' tool provides many options to allow any combination of CCX fields to be included in the UDP packet.
 
 ```
-$ ./build/emanate_udp_sender_darwin-x64 -h
+$ ./emanate_udp_sender_darwin-x64 -h
 
 NAME:
    emanate_udp_sender - Emanate PowerPath UDP CCX packet transmitter
@@ -149,7 +149,7 @@ GLOBAL OPTIONS:
 The 'emanate_udp_receiver' tool current just allows the user to change to listening UDP port.
 
 ```
-$ ./build/emanate_udp_receiver_darwin-x64 -h
+$ ./emanate_udp_receiver_darwin-x64 -h
 
 NAME:
    emanate_udp_receiver - Emanate PowerPath UDP CCX packet receiver
