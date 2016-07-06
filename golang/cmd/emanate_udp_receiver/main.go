@@ -10,6 +10,9 @@ import (
 )
 
 func main() {
+	// add some console output white-space
+	fmt.Println("")
+
 	// create the cli app
 	app := cli.NewApp()
 	app.Version = "v1.0.0"

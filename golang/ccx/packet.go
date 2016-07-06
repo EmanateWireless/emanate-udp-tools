@@ -3,6 +3,7 @@ package ccx
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 )
 
 // packet constants
@@ -30,6 +31,9 @@ const (
 	UtilStatePluggedInIdle      = "UTIL_STATE=PLUGGED_IN_IDLE"
 	UtilStatePluggedInActive    = "UTIL_STATE=PLUGGED_IN_ACTIVE"
 	ButtonPressedTelemetry      = "BUTTON=PRESSED"
+	ProbeUnpluggedTelemetry     = "TEMP_PROBE_ERROR=UNPLUGGED"
+	ProbeInvalidValueTelemetry  = "TEMP_PROBE_ERROR=INVALID_VALUE"
+	TelemetryDataOffset         = 20
 )
 
 // Packet instance struct
@@ -62,7 +66,7 @@ type Header struct {
 type SystemGroup struct {
 	ID          uint8
 	Length      uint8
-	ProductType uint8
+	ProductType uint16
 }
 
 // BatteryGroup defines the CCX battery group structure
@@ -84,10 +88,11 @@ type BatteryInfo struct {
 
 // StatusTelemetry defines the CCX unicode status string telemetry type
 type StatusTelemetry struct {
-	ID     uint8
-	Length uint8
-	Type   uint8
-	Status string
+	ID           uint8
+	Length       uint8
+	Type         uint8
+	StatusLength uint8
+	Status       string
 }
 
 // TemperatureTelemetry defines the CCX temperature telemetry type
@@ -135,12 +140,16 @@ func NewStatusTelemetry(status string) StatusTelemetry {
 	}
 	encodedStr := string(encodedBytes)
 
+	// get the status string length
+	statusLen := uint8(len(encodedStr))
+
 	// create and return the status telemetry instance
 	return StatusTelemetry{
-		ID:     TelemetryGroupID,           // 3
-		Length: uint8(len(encodedStr) + 1), // variable
-		Type:   StatusTelemetryType,        // 8
-		Status: encodedStr,
+		ID:           TelemetryGroupID,    // 3
+		Length:       statusLen + 2,       // variable group length
+		Type:         StatusTelemetryType, // 8
+		StatusLength: statusLen,           // variable status length
+		Status:       encodedStr,          // utf-16 status string
 	}
 }
 
@@ -214,12 +223,66 @@ func (p *Packet) SetTemperature(v float32) error {
 	return err
 }
 
-// SetButtonPressed adds the 'BUTTON=PRESSED' status telemetry string
+// SetDoorOpenPercent adds the door-open telemetry string
+func (p *Packet) SetDoorOpenPercent(percent int) error {
+	// build the telemetry status string
+	status := fmt.Sprintf("DOOR_OPEN_PERCENT=%d", percent)
+
+	// create the status telemetry instance
+	t := NewStatusTelemetry(status)
+
+	// write the button-pressed telemetry to the telemetry buffer
+	err := p.WriteStatusTelemetry(t)
+
+	// return whether an error occurred
+	return err
+}
+
+// SetHighPowerPercent adds the high-power-mode telemetry string
+func (p *Packet) SetHighPowerPercent(percent int) error {
+	// build the telemetry status string
+	status := fmt.Sprintf("HIGH_POWER_MODE_PERCENT=%d", percent)
+
+	// create the status telemetry instance
+	t := NewStatusTelemetry(status)
+
+	// write the button-pressed telemetry to the telemetry buffer
+	err := p.WriteStatusTelemetry(t)
+
+	// return whether an error occurred
+	return err
+}
+
+// SetButtonPressed adds the button-pressed status telemetry string
 func (p *Packet) SetButtonPressed() error {
 	// create the status telemetry instance
 	t := NewStatusTelemetry(ButtonPressedTelemetry)
 
-	// write the button-pressed telemetry to the telemetry buffer
+	// write the status telemetry entry to the telemetry buffer
+	err := p.WriteStatusTelemetry(t)
+
+	// return whether an error occurred
+	return err
+}
+
+// SetProbeUnplugged adds the temperature probe unplugged error status telemetry string
+func (p *Packet) SetProbeUnplugged() error {
+	// create the status telemetry instance
+	t := NewStatusTelemetry(ProbeUnpluggedTelemetry)
+
+	// write the status telemetry entry to the telemetry buffer
+	err := p.WriteStatusTelemetry(t)
+
+	// return whether an error occurred
+	return err
+}
+
+// SetProbeInvalidValue adds the temperature probe read error status telemetry string
+func (p *Packet) SetProbeInvalidValue() error {
+	// create the status telemetry instance
+	t := NewStatusTelemetry(ProbeInvalidValueTelemetry)
+
+	// write the status telemetry entry to the telemetry buffer
 	err := p.WriteStatusTelemetry(t)
 
 	// return whether an error occurred
@@ -240,20 +303,20 @@ func (p *Packet) SetUtilState(state string) error {
 
 // WriteStatusTelemetry writes the given status telemetry instance to the telemetry group buffer
 func (p *Packet) WriteStatusTelemetry(t StatusTelemetry) error {
-	// get the telemetry group buffer
-	buf := p.TelemetryData
-
 	// add each status telemetry field and return any errors
-	if err := buf.WriteByte(t.ID); err != nil {
+	if err := p.TelemetryData.WriteByte(t.ID); err != nil {
 		return err
 	}
-	if err := buf.WriteByte(t.Length); err != nil {
+	if err := p.TelemetryData.WriteByte(t.Length); err != nil {
 		return err
 	}
-	if err := buf.WriteByte(t.Type); err != nil {
+	if err := p.TelemetryData.WriteByte(t.Type); err != nil {
 		return err
 	}
-	if _, err := buf.WriteString(t.Status); err != nil {
+	if err := p.TelemetryData.WriteByte(t.StatusLength); err != nil {
+		return err
+	}
+	if _, err := p.TelemetryData.WriteString(t.Status); err != nil {
 		return err
 	}
 
@@ -288,8 +351,6 @@ func (p *Packet) Pack() ([]byte, error) {
 
 	// pack the 'telemetry group' bytes
 	tData := p.TelemetryData.Bytes()
-	buf.WriteByte(uint8(TelemetryGroupID))
-	buf.WriteByte(uint8(len(tData)))
 	if err := binary.Write(buf, binary.BigEndian, tData); err != nil {
 		return []byte{}, err
 	}

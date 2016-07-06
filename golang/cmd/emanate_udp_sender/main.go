@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -17,6 +18,9 @@ const (
 )
 
 func main() {
+	// add some console output white-space
+	fmt.Println("")
+
 	// create the cli app
 	app := cli.NewApp()
 	app.Version = "v1.0.0"
@@ -36,6 +40,16 @@ func main() {
 			Name:  "port",
 			Value: 9999,
 			Usage: "udp target port number",
+		},
+		cli.IntFlag{
+			Name:  "num-dups",
+			Value: 0,
+			Usage: "number of duplicate udp packets to send",
+		},
+		cli.IntFlag{
+			Name:  "dup-interval-ms",
+			Value: 100,
+			Usage: "delay interval between duplicate udp packets",
 		},
 		cli.IntFlag{
 			Name:  "seq",
@@ -76,14 +90,22 @@ func main() {
 			Usage: "adds the button-pressed telemetry status",
 		},
 		cli.IntFlag{
-			Name:  "num-dups",
-			Value: 0,
-			Usage: "number of duplicate udp packets to send",
+			Name:  "door-open-percent",
+			Value: 22,
+			Usage: "percentage of time the fridge door has been open",
 		},
 		cli.IntFlag{
-			Name:  "dup-interval-ms",
-			Value: 100,
-			Usage: "delay interval between duplicate udp packets",
+			Name:  "high-power-percent",
+			Value: 33,
+			Usage: "percentage of time the device ran in high-power-mode",
+		},
+		cli.BoolTFlag{
+			Name:  "probe-unplugged",
+			Usage: "adds the 'temp probe unplugged' alert telemetry status",
+		},
+		cli.BoolTFlag{
+			Name:  "probe-invalid-value",
+			Usage: "adds the 'temp probe invalid value' alert telemetry status",
 		},
 	}
 
@@ -100,6 +122,22 @@ func main() {
 
 		// set the burst length to the number of duplicate udp packets + 1 original
 		packet.SetBurstLength(uint8(c.Int("num-dups") + 1))
+
+		// if the sequence number is given
+		if c.GlobalIsSet("seq") {
+			// get the sequence number flag value
+			seq := c.Int("seq")
+
+			// validate the given sequence number
+			if (seq < MinSeqNumber) || (seq > MaxSeqNumber) {
+				msg := fmt.Sprintf("sequence number must be between '%d' and '%d' (inclusive)",
+					MinSeqNumber, MaxSeqNumber)
+				exitNow(msg)
+			}
+
+			// set the packet's sequence number
+			packet.SetSequenceNumber(uint16(seq))
+		}
 
 		// if the util-state option is given
 		if c.GlobalIsSet("util-state") {
@@ -129,22 +167,6 @@ func main() {
 			}
 		}
 
-		// if the sequence number is given
-		if c.GlobalIsSet("seq") {
-			// get the sequence number flag value
-			seq := c.Int("seq")
-
-			// validate the given sequence number
-			if (seq < MinSeqNumber) || (seq > MaxSeqNumber) {
-				msg := fmt.Sprintf("sequence number must be between '%d' and '%d' (inclusive)",
-					MinSeqNumber, MaxSeqNumber)
-				exitNow(msg)
-			}
-
-			// set the packet's sequence number
-			packet.SetSequenceNumber(uint16(seq))
-		}
-
 		// set the battery values
 		packet.SetBatteryInfo(&ccx.BatteryInfo{
 			TolerancePercent: uint8(c.Int("battery-tolerance")),
@@ -161,11 +183,59 @@ func main() {
 			}
 		}
 
+		// if the door-open-percent option is given
+		if c.GlobalIsSet("door-open-percent") {
+			// get the door-open-percent flag value
+			percent := c.Int("door-open-percent")
+
+			// validate the value
+			if (percent < 0) || (percent > 100) {
+				exitNow("door-open-percent must be between 0 and 100")
+			}
+
+			// add the door-open telemetry status to the packet
+			if err := packet.SetDoorOpenPercent(percent); err != nil {
+				exitNowWithError("cannot add 'door-open-percent' to UDP packet", err)
+			}
+		}
+
+		// if the high-power-percent option is given
+		if c.GlobalIsSet("high-power-percent") {
+			// get the high-power-percent flag value
+			percent := c.Int("high-power-percent")
+
+			// validate the value
+			if (percent < 0) || (percent > 100) {
+				exitNow("high-power-percent must be between 0 and 100")
+			}
+
+			// add the high-power telemetry status to the packet
+			if err := packet.SetHighPowerPercent(percent); err != nil {
+				exitNowWithError("cannot add 'high-power-percent' to UDP packet", err)
+			}
+		}
+
 		// if the button-pressed option is given
 		if c.GlobalIsSet("button-pressed") {
 			// add the button-pressed telemetry status to the packet
 			if err := packet.SetButtonPressed(); err != nil {
 				exitNowWithError("cannot add 'button-pressed' to UDP packet", err)
+			}
+		}
+
+		// if the probe-unplugged option is given
+		if c.GlobalIsSet("probe-unplugged") {
+			// add the probe-unplugged telemetry status to the packet
+			if err := packet.SetProbeUnplugged(); err != nil {
+				exitNowWithError("cannot add 'probe-unplugged' to UDP packet", err)
+			}
+		}
+
+		// if the probe-invalid-value option is given
+		if c.GlobalIsSet("probe-invalid-value") {
+			// add the probe-invalid-value telemetry status to the packet
+			if err := packet.SetProbeInvalidValue(); err != nil {
+				exitNowWithError("cannot add 'probe-invalid-value' to UDP packet", err)
 			}
 		}
 
@@ -196,8 +266,9 @@ func main() {
 			}
 		}
 
-		// display the banner saying we are done
-		fmt.Printf("\nDONE!\n\n")
+		// log that we are done
+		log.Printf("DONE!")
+		fmt.Println("")
 
 		// return successfully
 		return nil
@@ -212,11 +283,11 @@ func exitNow(msg string) {
 }
 
 func exitNowWithError(msg string, err error) {
-	// display the error message and exit with an error
+	// log the error message and exit with an error
 	if err != nil {
-		fmt.Printf("\nERROR: %s ('%v')\n\n", msg, err)
+		log.Printf("ERROR: %s ('%v')", msg, err)
 	} else {
-		fmt.Printf("\nERROR: %s\n\n", msg)
+		log.Printf("ERROR: %s", msg)
 	}
 	os.Exit(1)
 }

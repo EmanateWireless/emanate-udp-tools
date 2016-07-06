@@ -1,8 +1,8 @@
 package udp
 
 import (
-	"encoding/hex"
 	"fmt"
+	"log"
 	"net"
 )
 
@@ -27,10 +27,10 @@ func NewSender(options *SenderOptions) *Sender {
 
 // Transmit sends the given message as a UDP packet to the configured destination
 func (s *Sender) Transmit(data []byte) {
-	fmt.Printf("Sending UDP packet (%d bytes) (0x%v)\n", len(data), hex.EncodeToString(data))
+	dst := fmt.Sprintf("%s:%d", s.options.Host, s.options.Port)
+	log.Printf("Sending udp packet to '%s' (%d bytes)", dst, len(data))
 
 	// create the udp socket
-	dst := fmt.Sprintf("%s:%d", s.options.Host, s.options.Port)
 	conn, err := net.Dial("udp", dst)
 	if err != nil {
 		// log the error and return now
@@ -45,10 +45,7 @@ func (s *Sender) Transmit(data []byte) {
 	_, err = conn.Write(data)
 	if err != nil {
 		// log the error and return now
-		fmt.Printf("Error sending udp packet (error = '%v')\n", err)
+		log.Printf("Error sending udp packet (error = '%v')", err)
 		return
 	}
-
-	// log the successful udp transmit
-	fmt.Printf("Successfully sent udp packet to '%s:%d'\n", s.options.Host, s.options.Port)
 }

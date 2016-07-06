@@ -70,12 +70,16 @@ func (r *Receiver) Run() {
 	// wait for received udp packets until commanded to quit
 	for {
 		// read the next udp packet
-		_, remoteAddr, err := socket.ReadFromUDP(buf)
+		numBytes, remoteAddr, err := socket.ReadFromUDP(buf)
 		if err != nil {
 			// log the error and exit the process now
 			fmt.Printf("Error occurred while receiving UDP packet (error = '%v'", err)
 			os.Exit(1)
 		}
+
+		// copy the received bytes from the buffer
+		data := make([]byte, numBytes)
+		copy(data, buf)
 
 		// get the current time
 		now := time.Now()
@@ -86,7 +90,7 @@ func (r *Receiver) Run() {
 				TS:         now,
 				RemoteIP:   remoteAddr.IP.String(),
 				RemotePort: remoteAddr.Port,
-				Data:       buf,
+				Data:       data,
 			})
 		}
 	}
