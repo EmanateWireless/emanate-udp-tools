@@ -199,7 +199,13 @@ func (p *Packet) SetBurstLength(b uint8) {
 	p.Header.Burst = b
 }
 
-// SetBatteryInfo set the battery group with the given values
+// SetProductType sets the system group product-type with the given values
+func (p *Packet) SetProductType(pt uint16) {
+	// set the product-type
+	p.System.ProductType = pt
+}
+
+// SetBatteryInfo sets the battery group with the given values
 func (p *Packet) SetBatteryInfo(b *BatteryInfo) {
 	// calculate the bit fields
 	tolerancePercent := uint8(b.TolerancePercent/10) & 0x07

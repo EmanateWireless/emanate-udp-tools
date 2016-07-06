@@ -41,6 +41,10 @@ func main() {
 			Value: 9999,
 			Usage: "udp target port number",
 		},
+		cli.BoolTFlag{
+			Name:  "all",
+			Usage: "sends all possible udp message options for testing",
+		},
 		cli.IntFlag{
 			Name:  "num-dups",
 			Value: 0,
@@ -63,6 +67,7 @@ func main() {
 		},
 		cli.Float64Flag{
 			Name:  "temp",
+			Value: 12.34,
 			Usage: "temperature floating-point value (in celsius)",
 		},
 		cli.IntFlag{
@@ -107,6 +112,11 @@ func main() {
 			Name:  "probe-invalid-value",
 			Usage: "adds the 'temp probe invalid value' alert telemetry status",
 		},
+		cli.IntFlag{
+			Name:  "product-type",
+			Value: 0,
+			Usage: "product-type code set in the ccx 'system group'",
+		},
 	}
 
 	// define the cli execution handler
@@ -117,6 +127,13 @@ func main() {
 			Port: c.Int("port"),
 		})
 
+		// check if the kitchen-sink 'all' option is enabled
+		sendAll := false
+		if c.GlobalIsSet("all") {
+			// enable the kitchen-sink 'all' option
+			sendAll = true
+		}
+
 		// create a ccx packet
 		packet := ccx.NewPacket()
 
@@ -124,7 +141,7 @@ func main() {
 		packet.SetBurstLength(uint8(c.Int("num-dups") + 1))
 
 		// if the sequence number is given
-		if c.GlobalIsSet("seq") {
+		if sendAll || c.GlobalIsSet("seq") {
 			// get the sequence number flag value
 			seq := c.Int("seq")
 
@@ -140,7 +157,7 @@ func main() {
 		}
 
 		// if the util-state option is given
-		if c.GlobalIsSet("util-state") {
+		if sendAll || c.GlobalIsSet("util-state") {
 			// get the utility-state flag value
 			util := strings.ToLower(c.String("util-state"))
 
@@ -176,7 +193,7 @@ func main() {
 		})
 
 		// if the temperature option is given
-		if c.GlobalIsSet("temp") {
+		if sendAll || c.GlobalIsSet("temp") {
 			// add the temperature telemetry value to the packet
 			if err := packet.SetTemperature(float32(c.Float64("temp"))); err != nil {
 				exitNowWithError("cannot add temperature to UDP packet", err)
@@ -184,7 +201,7 @@ func main() {
 		}
 
 		// if the door-open-percent option is given
-		if c.GlobalIsSet("door-open-percent") {
+		if sendAll || c.GlobalIsSet("door-open-percent") {
 			// get the door-open-percent flag value
 			percent := c.Int("door-open-percent")
 
@@ -200,7 +217,7 @@ func main() {
 		}
 
 		// if the high-power-percent option is given
-		if c.GlobalIsSet("high-power-percent") {
+		if sendAll || c.GlobalIsSet("high-power-percent") {
 			// get the high-power-percent flag value
 			percent := c.Int("high-power-percent")
 
@@ -215,8 +232,17 @@ func main() {
 			}
 		}
 
+		// if the product-type option is given
+		if c.GlobalIsSet("product-type") {
+			// get the product-type flag value
+			pt := uint16(c.Int("product-type"))
+
+			// set the product-type value
+			packet.SetProductType(pt)
+		}
+
 		// if the button-pressed option is given
-		if c.GlobalIsSet("button-pressed") {
+		if sendAll || c.GlobalIsSet("button-pressed") {
 			// add the button-pressed telemetry status to the packet
 			if err := packet.SetButtonPressed(); err != nil {
 				exitNowWithError("cannot add 'button-pressed' to UDP packet", err)
@@ -224,7 +250,7 @@ func main() {
 		}
 
 		// if the probe-unplugged option is given
-		if c.GlobalIsSet("probe-unplugged") {
+		if sendAll || c.GlobalIsSet("probe-unplugged") {
 			// add the probe-unplugged telemetry status to the packet
 			if err := packet.SetProbeUnplugged(); err != nil {
 				exitNowWithError("cannot add 'probe-unplugged' to UDP packet", err)
@@ -232,7 +258,7 @@ func main() {
 		}
 
 		// if the probe-invalid-value option is given
-		if c.GlobalIsSet("probe-invalid-value") {
+		if sendAll || c.GlobalIsSet("probe-invalid-value") {
 			// add the probe-invalid-value telemetry status to the packet
 			if err := packet.SetProbeInvalidValue(); err != nil {
 				exitNowWithError("cannot add 'probe-invalid-value' to UDP packet", err)
