@@ -2,7 +2,7 @@
 
 # global variables
 BUILD_DIR=build
-CMDS="emanate_udp_receiver"
+CMDS="emanate_udp_sender emanate_udp_receiver"
 TARGETS="darwin linux windows"
 
 # create the build directory
