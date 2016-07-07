@@ -96,8 +96,8 @@ func dumpTelemetryInfo(data []byte) error {
 				cursor = cursor + 4
 
 				fmt.Printf("  - Temperature Group\n")
-				fmt.Printf("    - ID = %d\n", groupID)
-				fmt.Printf("    - Length = %d\n", groupLength)
+				fmt.Printf("    - Group ID = %d\n", groupID)
+				fmt.Printf("    - Group Length = %d\n", groupLength)
 				fmt.Printf("    - Type = %d\n", telemetryType)
 				fmt.Printf("    - Temperature = %.2f C\n", tempC)
 
@@ -125,9 +125,10 @@ func dumpTelemetryInfo(data []byte) error {
 				cursor = cursor + statusLength
 
 				fmt.Printf("  - Status Group\n")
-				fmt.Printf("    - ID = %d\n", groupID)
-				fmt.Printf("    - Length = %d\n", groupLength)
+				fmt.Printf("    - Group ID = %d\n", groupID)
+				fmt.Printf("    - Group Length = %d\n", groupLength)
 				fmt.Printf("    - Type = %d\n", telemetryType)
+				fmt.Printf("    - Status Length = %d\n", statusLength)
 				fmt.Printf("    - Status = '%s'\n", statusUTF16)
 
 			default:
