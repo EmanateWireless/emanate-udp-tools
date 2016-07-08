@@ -10,19 +10,19 @@ The 'udp_receiver_tool' receives Emanate PowerPath tag UDP datagrams, parses the
 
 ### 1. Download the UDP cli tools from the Github 'Releases' screen
    * OSX / Darwin
-     * [Download OSX UDP sender](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.0/emanate_udp_sender_darwin-x64)
-     * [Download OSX UDP receiver](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.0/emanate_udp_receiver_darwin-x64)
+     * [Download OSX UDP sender](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.0/emanate_udp_sender_osx)
+     * [Download OSX UDP receiver](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.0/emanate_udp_receiver_osx)
    * Windows
-     * [Download Windows 'UDP sender'](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.0/emanate_udp_sender_windows-x64)
-     * [Download Windows 'UDP receiver'](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.0/emanate_udp_receiver_windows-x64)
+     * [Download Windows 'UDP sender'](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.0/emanate_udp_sender_win.exe)
+     * [Download Windows 'UDP receiver'](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.0/emanate_udp_receiver_win.exe)
    * Linux
-     * [Download Linux 'UDP sender'](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.0/emanate_udp_sender_linux-x64)
-     * [Download Linux 'UDP receiver'](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.0/emanate_udp_receiver_linux-x64)
+     * [Download Linux 'UDP sender'](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.0/emanate_udp_sender_linux)
+     * [Download Linux 'UDP receiver'](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.0/emanate_udp_receiver_linux)
 
 ### 2. Start the 'UDP Receiver'
 
 ```
-$ ./emanate_udp_receiver_darwin-x64
+$ ./emanate_udp_receiver_osx
 
 Starting UDP receiver listening on port '9999'
 ```
@@ -32,7 +32,7 @@ Starting UDP receiver listening on port '9999'
 The '--all' option sends the kitchen-sink of every Emanate UDP option (for testing purposes).
 
 ```
-$ ./emanate_udp_sender_darwin-x64 --all
+$ ./emanate_udp_sender_osx --all
 
 2016/07/05 19:12:55 Sending udp packet to '127.0.0.1:9999' (323 bytes)
 2016/07/05 19:12:55 DONE!
@@ -107,7 +107,7 @@ UDP PACKET RECEIVED
 The 'emanate_udp_sender' tool provides many options to allow any combination of CCX fields to be included in the UDP packet.
 
 ```
-$ ./emanate_udp_sender_darwin-x64 -h
+$ ./emanate_udp_sender_osx -h
 
 NAME:
    emanate_udp_sender - Emanate PowerPath UDP CCX packet transmitter
@@ -149,7 +149,7 @@ GLOBAL OPTIONS:
 The 'emanate_udp_receiver' tool current just allows the user to change to listening UDP port.
 
 ```
-$ ./emanate_udp_receiver_darwin-x64 -h
+$ ./emanate_udp_receiver_osx -h
 
 NAME:
    emanate_udp_receiver - Emanate PowerPath UDP CCX packet receiver
