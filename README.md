@@ -9,18 +9,15 @@ The 'udp_receiver_tool' receives Emanate PowerPath tag UDP datagrams, parses the
 ## Quick Start
 
 ### 1. Download the UDP cli tools from the Github 'Releases' screen
-   * OSX (64-bit)
+   * Mac OSX
      * [Download OSX UDP sender](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.0/emanate_udp_sender_osx)
      * [Download OSX UDP receiver](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.0/emanate_udp_receiver_osx)
-   * Windows (64-bit)
-     * [Download Windows 'UDP sender' (64-bit)](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.0/emanate_udp_sender_win_x64.exe)
-     * [Download Windows 'UDP receiver' (64-bit)](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.0/emanate_udp_receiver_win_x64.exe)
-   * Windows (32-bit)
-     * [Download Windows 'UDP sender' (32-bit)](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.0/emanate_udp_sender_win_386.exe)
-     * [Download Windows 'UDP receiver' (32-bit)](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.0/emanate_udp_receiver_win_386.exe)
-   * Linux
-     * [Download Linux 'UDP sender'](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.0/emanate_udp_sender_linux)
-     * [Download Linux 'UDP receiver'](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.0/emanate_udp_receiver_linux)
+   * Windows
+     * [Download Windows 'UDP sender'](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.0/emanate_udp_sender_win.exe)
+     * [Download Windows 'UDP receiver'](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.0/emanate_udp_receiver_win.exe)
+   * Linux x86
+     * [Download Linux 'UDP sender'](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.0/emanate_udp_sender_linux_x86)
+     * [Download Linux 'UDP receiver'](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.0/emanate_udp_receiver_linux_x86)
 
 ### 2. Start the 'UDP Receiver'
 

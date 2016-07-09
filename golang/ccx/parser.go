@@ -121,15 +121,19 @@ func dumpTelemetryInfo(data []byte) error {
 					return fmt.Errorf(msg)
 				}
 
+				// extract the utf-16 status string and advance the cursor
 				statusUTF16 := string(data[cursor : cursor+statusLength])
 				cursor = cursor + statusLength
+
+				// convert the utf-16 string into an ascii string
+				statusASCII := util.UTF16ToASCII(statusUTF16)
 
 				fmt.Printf("  - Status Group\n")
 				fmt.Printf("    - Group ID = %d\n", groupID)
 				fmt.Printf("    - Group Length = %d\n", groupLength)
 				fmt.Printf("    - Type = %d\n", telemetryType)
 				fmt.Printf("    - Status Length = %d\n", statusLength)
-				fmt.Printf("    - Status = '%s'\n", statusUTF16)
+				fmt.Printf("    - Status = '%s'\n", statusASCII)
 
 			default:
 				fmt.Printf("  TELEMETRY TYPE ERROR! (%d)", telemetryType)

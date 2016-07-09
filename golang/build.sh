@@ -11,16 +11,13 @@ mkdir -p $BUILD_DIR
 echo ""
 for cmd in $CMDS; do
    echo "Building '${cmd}' executable for OSX target";
-   GOOS=${t} GOARCH=amd64 go build -o build/${cmd}_osx cmd/${cmd}/main.go
+   GOOS=darwin GOARCH=386 go build -o build/${cmd}_osx cmd/${cmd}/main.go
 
-   echo "Building '${cmd}' executable for Windows 64-bit target";
-   GOOS=${t} GOARCH=amd64 go build -o build/${cmd}_win_x64.exe cmd/${cmd}/main.go
+   echo "Building '${cmd}' executable for Windows target";
+   GOOS=windows GOARCH=386 go build -o build/${cmd}_win.exe cmd/${cmd}/main.go
 
-   echo "Building '${cmd}' executable for Windows 32-bit target";
-   GOOS=${t} GOARCH=386 go build -o build/${cmd}_win_386.exe cmd/${cmd}/main.go
-
-   echo "Building '${cmd}' executable for Linux target";
-   GOOS=${t} GOARCH=386 go build -o build/${cmd}_linux cmd/${cmd}/main.go
+   echo "Building '${cmd}' executable for Linux x86 target";
+   GOOS=linux GOARCH=386 go build -o build/${cmd}_linux_x86 cmd/${cmd}/main.go
 done
 
 echo "DONE!"

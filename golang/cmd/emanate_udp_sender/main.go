@@ -23,7 +23,7 @@ func main() {
 
 	// create the cli app
 	app := cli.NewApp()
-	app.Version = "v1.0.0"
+	app.Version = "v1.0.1"
 	app.Name = "emanate_udp_sender"
 	app.HelpName = "emanate_udp_sender"
 	app.Usage = "Emanate PowerPath UDP CCX packet transmitter"
