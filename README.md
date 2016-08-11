@@ -10,14 +10,14 @@ The 'udp_receiver_tool' receives Emanate PowerPath tag UDP datagrams, parses the
 
 ### 1. Download the UDP cli tools from the Github 'Releases' screen
    * Mac OSX
-     * [Download OSX UDP sender](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.1/emanate_udp_sender_osx)
-     * [Download OSX UDP receiver](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.1/emanate_udp_receiver_osx)
+     * [Download OSX UDP sender](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.2/emanate_udp_sender_osx)
+     * [Download OSX UDP receiver](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.2/emanate_udp_receiver_osx)
    * Windows
-     * [Download Windows 'UDP sender'](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.1/emanate_udp_sender_win.exe)
-     * [Download Windows 'UDP receiver'](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.1/emanate_udp_receiver_win.exe)
+     * [Download Windows 'UDP sender'](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.2/emanate_udp_sender.exe)
+     * [Download Windows 'UDP receiver'](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.2/emanate_udp_receiver.exe)
    * Linux x86
-     * [Download Linux 'UDP sender'](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.1/emanate_udp_sender_linux_x86)
-     * [Download Linux 'UDP receiver'](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.1/emanate_udp_receiver_linux_x86)
+     * [Download Linux 'UDP sender'](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.2/emanate_udp_sender_linux_x86)
+     * [Download Linux 'UDP receiver'](https://github.com/EmanateWireless/emanate-udp-tools/releases/download/v1.0.2/emanate_udp_receiver_linux_x86)
 
 ### 2. Start the 'UDP Receiver'
 
