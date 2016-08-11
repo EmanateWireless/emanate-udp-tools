@@ -46,6 +46,7 @@ func (s *Sender) Transmit(data []byte) {
 	if err != nil {
 		// log the error and return now
 		log.Printf("Error sending udp packet (error = '%v')", err)
-		return
+	} else {
+		log.Printf("Successfully sent UDP packet to '%s' (%d bytes)\n", dst, len(data))
 	}
 }

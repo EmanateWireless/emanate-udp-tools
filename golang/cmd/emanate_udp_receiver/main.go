@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/hex"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/EmanateWireless/emanate-udp-tools/golang/ccx"
 	"github.com/EmanateWireless/emanate-udp-tools/golang/udp"
@@ -15,7 +17,7 @@ func main() {
 
 	// create the cli app
 	app := cli.NewApp()
-	app.Version = "v1.0.1"
+	app.Version = "v1.0.2"
 	app.Name = "emanate_udp_receiver"
 	app.HelpName = "emanate_udp_receiver"
 	app.Usage = "Emanate PowerPath UDP CCX packet receiver"
@@ -41,6 +43,8 @@ func main() {
 		receiver.DataHandler(func(du *udp.DataUpdate) {
 			fmt.Printf("\nUDP PACKET RECEIVED\n")
 			fmt.Printf("===================\n\n")
+			fmt.Printf("%s\n", hex.Dump(du.Data))
+			fmt.Printf("  - Timestamp = %s\n", time.Now().Format(time.RFC3339))
 			fmt.Printf("  - Total Bytes = %d\n", len(du.Data))
 			fmt.Printf("  - Remote Addr = %s:%d\n", du.RemoteIP, du.RemotePort)
 

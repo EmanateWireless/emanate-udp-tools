@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+
+	"github.com/EmanateWireless/emanate-udp-tools/golang/util"
 )
 
 // packet constants
@@ -33,12 +35,12 @@ const (
 	ButtonPressedTelemetry      = "BUTTON=PRESSED"
 	ProbeUnpluggedTelemetry     = "TEMP_PROBE_ERROR=UNPLUGGED"
 	ProbeInvalidValueTelemetry  = "TEMP_PROBE_ERROR=INVALID_VALUE"
-	TelemetryDataOffset         = 20
+	TelemetryDataOffset         = 34
 )
 
 // Packet instance struct
 type Packet struct {
-	Sequence      uint16
+	EmanateHeader EmanateHeader
 	Header        Header
 	System        SystemGroup
 	Battery       BatteryGroup
@@ -47,13 +49,21 @@ type Packet struct {
 
 // ParsedPacket includes the fields that can be parsed by the encoding/binary package
 type ParsedPacket struct {
-	Sequence uint16
-	Header   Header
-	System   SystemGroup
-	Battery  BatteryGroup
+	EmanateHeader EmanateHeader
+	Header        Header
+	System        SystemGroup
+	Battery       BatteryGroup
 }
 
-// Header defines Emanate's encapsulating CCX packet header
+// EmanateHeader provides an encapsulating header to the CCX-formatted packet
+type EmanateHeader struct {
+	UDPVersion uint16
+	TagMACAddr [6]uint8
+	APMACAddr  [6]uint8
+	Sequence   uint16
+}
+
+// Header defines the CCX packet header
 type Header struct {
 	Version         uint8
 	Power           uint8
@@ -105,9 +115,18 @@ type TemperatureTelemetry struct {
 
 // NewPacket creates a new CCX packet instance
 func NewPacket() *Packet {
+	// get the tag and AP mac-address bytes
+	tagMACAddr, _ := util.MACAddrToBytes("11:22:33:44:55:66")
+	apMACAddr, _ := util.MACAddrToBytes("66:55:44:33:22:11")
+
 	// return a new default packet instance
 	return &Packet{
-		Sequence: uint16(1),
+		EmanateHeader: EmanateHeader{
+			UDPVersion: uint16(0),
+			TagMACAddr: tagMACAddr,
+			APMACAddr:  apMACAddr,
+			Sequence:   uint16(1),
+		},
 		Header: Header{
 			Version:         EmanateProtocolVersion,
 			Power:           DefaultTxPower,
@@ -163,9 +182,42 @@ func NewTemperatureTelemetry(v float32) TemperatureTelemetry {
 	}
 }
 
+// SetUDPVersion sets the UDP version in the encapsulating Emanate header
+func (p *Packet) SetUDPVersion(v uint16) {
+	p.EmanateHeader.UDPVersion = v
+}
+
+// SetTagMACAddress sets the tag MAC address in the encapsulating Emanate header
+func (p *Packet) SetTagMACAddress(mac string) error {
+	// convert the mac-address string into a 6-byte array
+	macBytes, err := util.MACAddrToBytes(mac)
+
+	// if conversion successful
+	if err == nil {
+		p.EmanateHeader.TagMACAddr = macBytes
+	}
+
+	// return whether an error occurred
+	return err
+}
+
+// SetAPMACAddress sets the wifi AP MAC address in the encapsulating Emanate header
+func (p *Packet) SetAPMACAddress(mac string) error {
+	// convert the mac-address string into a 6-byte array
+	macBytes, err := util.MACAddrToBytes(mac)
+
+	// if conversion successful
+	if err == nil {
+		p.EmanateHeader.APMACAddr = macBytes
+	}
+
+	// return whether an error occurred
+	return err
+}
+
 // SetSequenceNumber sets the packet sequence number
 func (p *Packet) SetSequenceNumber(seq uint16) {
-	p.Sequence = seq
+	p.EmanateHeader.Sequence = seq
 }
 
 // IncSequenceNumber increments the packet sequence number
@@ -176,7 +228,7 @@ func (p *Packet) IncSequenceNumber(seq uint16) {
 
 // IncSequenceNumberByValue increments the packet sequence number by the given value
 func (p *Packet) IncSequenceNumberByValue(v uint16) {
-	p.Sequence = p.Sequence + v
+	p.EmanateHeader.Sequence = p.EmanateHeader.Sequence + v
 }
 
 // SetProtocolVersion sets the protocol version field in the packet
@@ -335,8 +387,23 @@ func (p *Packet) Pack() ([]byte, error) {
 	// create the encoding buffer
 	buf := &bytes.Buffer{}
 
+	// pack the udp packet version
+	if err := binary.Write(buf, binary.BigEndian, p.EmanateHeader.UDPVersion); err != nil {
+		return []byte{}, err
+	}
+
+	// pack the tag mac address
+	if err := binary.Write(buf, binary.BigEndian, p.EmanateHeader.TagMACAddr); err != nil {
+		return []byte{}, err
+	}
+
+	// pack the wifi AP mac address
+	if err := binary.Write(buf, binary.BigEndian, p.EmanateHeader.APMACAddr); err != nil {
+		return []byte{}, err
+	}
+
 	// pack the sequence number
-	if err := binary.Write(buf, binary.BigEndian, p.Sequence); err != nil {
+	if err := binary.Write(buf, binary.BigEndian, p.EmanateHeader.Sequence); err != nil {
 		return []byte{}, err
 	}
 

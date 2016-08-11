@@ -32,7 +32,10 @@ func Parse(data []byte) error {
 
 func dumpStaticInfo(packet *ParsedPacket) {
 	// dump the static packet info
-	fmt.Printf("  - Sequence = %d\n", packet.Sequence)
+	fmt.Printf("  - UDP Version = %d\n", packet.EmanateHeader.UDPVersion)
+	fmt.Printf("  - Tag MAC = %s\n", util.MACBytesToString(packet.EmanateHeader.TagMACAddr))
+	fmt.Printf("  - AP MAC = %s\n", util.MACBytesToString(packet.EmanateHeader.APMACAddr))
+	fmt.Printf("  - Sequence = %d\n", packet.EmanateHeader.Sequence)
 	fmt.Printf("  - Header\n")
 	fmt.Printf("    - Protocol Version = %d\n", packet.Header.Version)
 	fmt.Printf("    - Transmit Power = %d\n", packet.Header.Power)

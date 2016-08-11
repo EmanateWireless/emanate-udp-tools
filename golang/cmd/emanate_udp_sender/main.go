@@ -13,7 +13,10 @@ import (
 )
 
 const (
+	// MinSeqNumber is the minimum supported sequence number
 	MinSeqNumber = 0
+
+	// MaxSeqNumber is the maximum support sequence number
 	MaxSeqNumber = 65535
 )
 
@@ -23,7 +26,7 @@ func main() {
 
 	// create the cli app
 	app := cli.NewApp()
-	app.Version = "v1.0.1"
+	app.Version = "v1.0.2"
 	app.Name = "emanate_udp_sender"
 	app.HelpName = "emanate_udp_sender"
 	app.Usage = "Emanate PowerPath UDP CCX packet transmitter"
@@ -59,6 +62,16 @@ func main() {
 			Name:  "seq",
 			Value: 1,
 			Usage: "sequence number of the emanate udp packet",
+		},
+		cli.StringFlag{
+			Name:  "tag-mac",
+			Value: "11:22:33:44:55:66",
+			Usage: "sending tag mac-address",
+		},
+		cli.StringFlag{
+			Name:  "ap-mac",
+			Value: "66:55:44:33:22:11",
+			Usage: "associated wifi AP mac-address",
 		},
 		cli.StringFlag{
 			Name:  "util-state",
@@ -139,6 +152,12 @@ func main() {
 
 		// set the burst length to the number of duplicate udp packets + 1 original
 		packet.SetBurstLength(uint8(c.Int("num-dups") + 1))
+
+		// set the sending tag's mac-address
+		packet.SetTagMACAddress(c.String("tag-mac"))
+
+		// set the associated wifi AP's mac-address
+		packet.SetAPMACAddress(c.String("ap-mac"))
 
 		// if the sequence number is given
 		if sendAll || c.GlobalIsSet("seq") {
