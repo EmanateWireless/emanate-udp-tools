@@ -14,7 +14,7 @@ for cmd in $CMDS; do
    GOOS=darwin GOARCH=386 go build -o build/${cmd}_osx cmd/${cmd}/main.go
 
    echo "Building '${cmd}' executable for Windows target";
-   GOOS=windows GOARCH=386 go build -o build/${cmd}_win.exe cmd/${cmd}/main.go
+   GOOS=windows GOARCH=386 go build -o build/${cmd}.exe cmd/${cmd}/main.go
 
    echo "Building '${cmd}' executable for Linux x86 target";
    GOOS=linux GOARCH=386 go build -o build/${cmd}_linux_x86 cmd/${cmd}/main.go
